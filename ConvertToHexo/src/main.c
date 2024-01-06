@@ -32,18 +32,22 @@ TODO:
 #include <string.h>
 #include <semaphore.h>
 
+
 int main(int argc, const char *argv[])
 {
     FILE *srcfp;
     FILE *destfp;
 
-    if((srcfp=fopen(argv[1],"r"))==NULL)
+    char* oldtex;
+    char* newtex;
+
+    if ((srcfp = fopen(argv[1], "r")) == NULL)
     {
         perror("fopen error");
         return -1;
     }
-    
-    if((destfp=fopen("convert_temp.md","w"))==NULL)
+
+    if ((destfp = fopen("convert_temp.md", "w")) == NULL)
     {
         perror("fopen error");
         return -1;
@@ -54,37 +58,45 @@ int main(int argc, const char *argv[])
     char buffer[256];
     char *line;
     char title[128];
-    while (fgets(buffer, sizeof(buffer), srcfp) != NULL) {
+    while (fgets(buffer, sizeof(buffer), srcfp) != NULL)
+    {
         // 查找第一个出现的 "##"
         line = strstr(buffer, "##");
+
+        
+
         // 如果找到了
-        if (line != NULL) {
+        if (line != NULL)
+        {
             // 找到"##"后面的内容
             line += 3; // 移动到 "##" 后的位置
-            sprintf(title,"%s",line);
+            sprintf(title, "%s", line);
             // 去掉换行符
-            if ((line = strchr(title, '\n')) != NULL) {
+            if ((line = strchr(title, '\n')) != NULL)
+            {
                 *line = '\0';
+                fseek(srcfp, line-buffer +1 , SEEK_SET);
             }
             break;
         }
     }
 
-    //写入Front Matter
-    fprintf(destfp,"---\n");
-    fprintf(destfp,"layout: wiki  # 使用wiki布局模板\n");
-    fprintf(destfp,"wiki: python # 这是项目名\n");
-    fprintf(destfp,"title: %s  # 文章标题\n",title);
-    fprintf(destfp,"---\n");  
-
-    fseek(srcfp,0,SEEK_SET);
-    while(!feof(srcfp))
-    {
-        int res=fread(buffer,1,sizeof(buffer),srcfp);
-        fwrite(buffer,1,res,destfp);
-    }
+    // 写入Front Matter
+    fprintf(destfp, "---\n");
+    fprintf(destfp, "layout: wiki  # 使用wiki布局模板\n");
+    fprintf(destfp, "wiki: python # 这是项目名\n");
+    fprintf(destfp, "title: %s  # 文章标题\n", title);
+    fprintf(destfp, "---\n");
     
-    printf("%s 转换完成。\n",title);
+    
+    while (!feof(srcfp))
+    {
+        int res = fread(buffer, 1, sizeof(buffer), srcfp);
+        fwrite(buffer, 1, res, destfp);
+    }
+
+
+    printf("%s 转换完成。\n", title);
     fclose(srcfp);
     fclose(destfp);
 }

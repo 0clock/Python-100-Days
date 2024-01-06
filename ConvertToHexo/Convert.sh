@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ls=$(ls | grep "Day")
+ls=$(ls -d */)
 
 rm -r ./ConvertToHexo/file
 mkdir ./ConvertToHexo/file
@@ -10,6 +10,7 @@ do
     dir=$(echo $ls | cut -d " " -f $i )
     mkdir ./ConvertToHexo/file/$dir/
     cd $dir
+    cp -r ./res ../ConvertToHexo/file/$dir/res
     allfile=$(ls *.md)
     lines=$(echo "$allfile" | wc -l)
     # 使用循环遍历每一行
